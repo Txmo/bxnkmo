@@ -28,32 +28,6 @@ class Group
     public $filter;
 
     /**
-     * @param int $groupId
-     * @return Group
-     */
-    public static function forId(int $groupId): Group
-    {
-        $query = <<<SQL
-        SELECT id, 'name'
-        FROM `group`
-        WHERE id = :id
-SQL;
-        $stm = DB::connect()->prepare($query);
-        $stm->bindValue(':id', $groupId, \PDO::PARAM_INT);
-        if (DB::execute($stm)) {
-            /**
-             * @var bool|Group $group
-             */
-            $group = $stm->fetchObject(self::class);
-            if ($group->id) {
-                $group->filter = Filter::forGroup($group->id);
-            }
-            return $group;
-        }
-        return new self();
-    }
-
-    /**
      * @return Group[]
      */
     public static function all(): array

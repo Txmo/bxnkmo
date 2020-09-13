@@ -8,13 +8,20 @@ use Database\DB;
 
 class ComparisonOperator
 {
+    public const LESS_THAN = 1;
+    public const GREATER_THAN = 2;
+    public const EQUAL_TO = 3;
+    public const NOT_EQUAL_TO = 4;
+    public const LIKE = 5;
+    public const BETWEEN = 6;
+
     public const ALLOWED_SIGNS = [
-        'LIKE',
-        '=',
-        '!=',
-        '<',
-        '>',
-        'BETWEEN'
+        self::LESS_THAN => '<',
+        self::GREATER_THAN => '>',
+        self::EQUAL_TO => '=',
+        self::NOT_EQUAL_TO => '!=',
+        self::LIKE => 'LIKE',
+        self::BETWEEN => 'BETWEEN'
     ];
 
     /**
@@ -44,10 +51,13 @@ SQL;
 
     /**
      * @param int $comparisonId
-     * @return ComparisonOperator
+     * @return null|ComparisonOperator
      */
-    public static function getById(int $comparisonId): ComparisonOperator
+    public static function forId(int $comparisonId): ?ComparisonOperator
     {
+        if (!$comparisonId) {
+            return null;
+        }
         $query = <<<SQL
         SELECT id, sign 
         FROM comparison_operator 
@@ -56,9 +66,9 @@ SQL;
         $stm = DB::connect()->prepare($query);
         $stm->bindValue(':id', $comparisonId, \PDO::PARAM_INT);
         if (DB::execute($stm)) {
-            return $stm->fetchObject(self::class) ?: new self();
+            return $stm->fetchObject(self::class) ?: null;
         }
-        return new self();
+        return null;
     }
 
     /**
