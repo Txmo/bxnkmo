@@ -1,8 +1,8 @@
 <?php
 
 namespace BankStatement\Parser;
-require_once dirname(__DIR__).'/Parser/ParserException.php';
-require_once dirname(__DIR__).'/Parser/SparkasseCSVParser.php';
+require_once BXNMKO . 'BankStatement/Parser/ParserException.php';
+require_once BXNMKO . 'BankStatement/Parser/SparkasseCSVParser.php';
 
 class ParserFactory
 {

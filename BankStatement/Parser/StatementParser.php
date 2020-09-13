@@ -1,7 +1,7 @@
 <?php
 
 namespace BankStatement\Parser;
-require_once dirname(__DIR__).'/BankStatement.php';
+require_once BXNMKO . 'BankStatement/BankStatement.php';
 
 use \BankStatement\BankStatement;
 

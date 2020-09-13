@@ -2,9 +2,10 @@
 
 
 namespace Filter;
-require_once dirname(__DIR__) . '/Database/DB.php';
+require_once BXNMKO . '/Database/DB.php';
 
 use Database\DB;
+use PDO;
 
 class ComparisonOperator
 {
@@ -44,7 +45,7 @@ class ComparisonOperator
 SQL;
         $stm = DB::connect()->prepare($query);
         if (DB::execute($stm)) {
-            return $stm->fetchAll(\PDO::FETCH_CLASS, self::class);
+            return $stm->fetchAll(PDO::FETCH_CLASS, self::class);
         }
         return [];
     }
@@ -64,7 +65,7 @@ SQL;
         WHERE id = :id 
 SQL;
         $stm = DB::connect()->prepare($query);
-        $stm->bindValue(':id', $comparisonId, \PDO::PARAM_INT);
+        $stm->bindValue(':id', $comparisonId, PDO::PARAM_INT);
         if (DB::execute($stm)) {
             return $stm->fetchObject(self::class) ?: null;
         }
@@ -83,9 +84,9 @@ SQL;
             JOIN field_comparison_operator fco on c_op.id = fco.comparison_operator_id AND fco.field_id = :fieldId
 SQL;
         $stm = DB::connect()->prepare($query);
-        $stm->bindValue(':fieldId', $fieldId, \PDO::PARAM_INT);
+        $stm->bindValue(':fieldId', $fieldId, PDO::PARAM_INT);
         if (DB::execute($stm)) {
-            return $stm->fetchAll(\PDO::FETCH_CLASS, self::class);
+            return $stm->fetchAll(PDO::FETCH_CLASS, self::class);
         }
         return [];
     }

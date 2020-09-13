@@ -3,11 +3,11 @@
 
 namespace Filter;
 
-require_once dirname(__DIR__) . '/Database/DB.php';
-require_once dirname(__DIR__) . '/Filter/Filter.php';
+require_once BXNMKO . '/Database/DB.php';
+require_once BXNMKO . '/Filter/Filter.php';
 
 use Database\DB;
-use Filter\Filter;
+use PDO;
 
 
 class Group
@@ -38,7 +38,7 @@ class Group
 SQL;
         $stm = DB::connect()->prepare($query);
         if (DB::execute($stm)) {
-            return $stm->fetchAll(\PDO::FETCH_CLASS, self::class);
+            return $stm->fetchAll(PDO::FETCH_CLASS, self::class);
         }
         return [];
     }
@@ -78,7 +78,7 @@ SQL;
         DELETE FROM `group` WHERE id = :id
 SQL;
         $stm = DB::connect()->prepare($query);
-        $stm->bindValue(':id', $groupId, \PDO::PARAM_INT);
+        $stm->bindValue(':id', $groupId, PDO::PARAM_INT);
         if (DB::execute($stm)) {
             return (bool)$stm->rowCount();
         }

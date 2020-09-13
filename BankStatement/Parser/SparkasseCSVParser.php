@@ -2,11 +2,12 @@
 
 
 namespace BankStatement\Parser;
-require_once dirname(__DIR__) . '/Parser/StatementParser.php';
-require_once dirname(__DIR__) . '/Parser/AbstractFileParser.php';
-require_once dirname(__DIR__) . '/BankStatement.php';
+require_once BXNMKO . 'BankStatement/Parser/StatementParser.php';
+require_once BXNMKO . 'BankStatement/Parser/AbstractFileParser.php';
+require_once BXNMKO . 'BankStatement/BankStatement.php';
 
 use BankStatement\BankStatement;
+use DateTime;
 
 class SparkasseCSVParser extends AbstractFileParser implements StatementParser
 {
@@ -68,7 +69,7 @@ class SparkasseCSVParser extends AbstractFileParser implements StatementParser
     {
         $statement = new BankStatement();
         $statement->orderIBAN = trim($row[self::ORDER_IBAN]);
-        $date = \DateTime::createFromFormat('d.m.y', trim($row[self::BOOKING_DATE]));
+        $date = DateTime::createFromFormat('d.m.y', trim($row[self::BOOKING_DATE]));
         $statement->bookingDate = $date->format('Y-m-d');
         $statement->bookingText = utf8_encode(trim(preg_replace('/\s+/', ' ', $row[self::BOOKING_TEXT])));
         $statement->usage = utf8_encode(trim(preg_replace('/\s+/', ' ', $row[self::USAGE])));

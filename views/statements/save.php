@@ -1,13 +1,13 @@
 <?php
 
-require_once dirname(__DIR__) . '../BankStatement/Parser/ParserFactory.php';
-require_once dirname(__DIR__) . '../BankStatement/StatementHandler.php';
+require_once BXNMKO . '/BankStatement/Parser/ParserFactory.php';
+require_once BXNMKO . '/BankStatement/StatementHandler.php';
 
 use BankStatement\Parser\ParserException;
 use BankStatement\Parser\ParserFactory;
 use BankStatement\StatementHandler;
 
-$file = dirname(__DIR__) . '../bxnkmo/statements/csv/20200822-75447649-umsatz.CSV';
+$file = BXNMKO . '/statements/csv/20200822-75447649-umsatz.CSV';
 echo "<pre>";
 $statements = null;
 try {

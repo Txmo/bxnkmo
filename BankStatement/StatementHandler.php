@@ -3,10 +3,9 @@
 
 namespace BankStatement;
 
-require_once dirname(__DIR__) . '/BankStatement/BankStatement.php';
-require_once dirname(__DIR__) . '/Database/DB.php';
+require_once BXNMKO . '/BankStatement/BankStatement.php';
+require_once BXNMKO . '/Database/DB.php';
 
-use BankStatement\BankStatement;
 use Database\DB;
 
 
