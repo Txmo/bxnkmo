@@ -51,19 +51,19 @@ abstract class Query
         switch ($field->comparisonOperator->id) {
             case ComparisonOperator::LIKE:
                 $placeHolder = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '\'' . $field->correspondingColumnName . '\' ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::LIKE] . ' ' . $placeHolder;
+                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::LIKE] . ' ' . $placeHolder;
                 $this->parameters[$placeHolder] = '%' . ($field->values[0] ?? '') . '%';
                 break;
             case ComparisonOperator::BETWEEN:
                 $placeHolderLeft = ':' . $field->correspondingColumnName . rand(0, 9999);
                 $placeHolderRight = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '\'' . $field->correspondingColumnName . '\' ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::BETWEEN] . ' ' . $placeHolderLeft . ' AND ' . $placeHolderRight;
+                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::BETWEEN] . ' ' . $placeHolderLeft . ' AND ' . $placeHolderRight;
                 $this->parameters[$placeHolderLeft] = $field->values[0] ?? 0;
                 $this->parameters[$placeHolderRight] = $field->values[1] ?? 0;
                 break;
             default:
                 $placeHolder = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '\'' . $field->correspondingColumnName . '\' ' . (ComparisonOperator::ALLOWED_SIGNS[$field->comparisonOperator->id] ?? ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::EQUAL_TO]) . ' ' . $placeHolder;
+                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . (ComparisonOperator::ALLOWED_SIGNS[$field->comparisonOperator->id] ?? ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::EQUAL_TO]) . ' ' . $placeHolder;
                 $this->parameters[$placeHolder] = $field->values[0] ?? null;
         }
     }
