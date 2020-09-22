@@ -55,12 +55,14 @@ class Filter {
             return this.values[key].value[0].value !== '';
         }
 
+        let ret = true;
         this.values[key].value.forEach((dom, index) => {
             if (dom.value === '') {
-                return false;
+                ret = false;
             }
-        });
-        return true;
+        })
+
+        return ret;
     }
 
     /**
