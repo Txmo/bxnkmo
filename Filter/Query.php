@@ -7,84 +7,60 @@ require_once BXNMKO . '/Filter/ComparisonOperator.php';
 require_once BXNMKO . '/Filter/Field.php';
 require_once BXNMKO . '/Filter/Filter.php';
 require_once BXNMKO . '/Database/DB.php';
+require_once BXNMKO . '/Filter/Condition.php';
 
 use PDOStatement;
 use Database\DB;
-use Filter\ComparisonOperator;
-use Filter\Field;
-use Filter\Filter;
 
 
-abstract class Query
+class Query
 {
-
-    public $query;
+    public static $autoIncrement = 0;
 
     /**
-     * @var array e.g. [:recipientUNIQID => exampleRecipient]
+     * @var string $query
      */
-    public $parameters = [];
+    public $query = 'SELECT * FROM bank_statement';
 
     /**
-     * @var array e.g. [recipient = :recipientUNIQID]
+     * @var Condition[] $conditions
      */
     public $conditions = [];
 
     /**
-     * @return string
+     * @param Condition $condition
      */
-    abstract public function generateMainQuery(): string;
-
-    /**
-     * Query constructor.
-     */
-    public function __construct()
+    public function addCondition(Condition $condition): void
     {
-        $this->query = $this->generateMainQuery();
+        $this->conditions[] = $condition;
     }
 
-    public function addCondition(Field $field): void
-    {
-        if (!in_array($field->comparisonOperator->sign, ComparisonOperator::ALLOWED_SIGNS)) {
-            return;
-        }
-        switch ($field->comparisonOperator->id) {
-            case ComparisonOperator::LIKE:
-                $placeHolder = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::LIKE] . ' ' . $placeHolder;
-                $this->parameters[$placeHolder] = '%' . ($field->values[0] ?? '') . '%';
-                break;
-            case ComparisonOperator::BETWEEN:
-                $placeHolderLeft = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $placeHolderRight = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::BETWEEN] . ' ' . $placeHolderLeft . ' AND ' . $placeHolderRight;
-                $this->parameters[$placeHolderLeft] = $field->values[0] ?? 0;
-                $this->parameters[$placeHolderRight] = $field->values[1] ?? 0;
-                break;
-            default:
-                $placeHolder = ':' . $field->correspondingColumnName . rand(0, 9999);
-                $this->conditions[] = '`' . $field->correspondingColumnName . '` ' . (ComparisonOperator::ALLOWED_SIGNS[$field->comparisonOperator->id] ?? ComparisonOperator::ALLOWED_SIGNS[ComparisonOperator::EQUAL_TO]) . ' ' . $placeHolder;
-                $this->parameters[$placeHolder] = $field->values[0] ?? null;
-        }
-    }
-
-    /**
-     * @return PDOStatement|null
-     */
     public function run(): ?PDOStatement
     {
         $this->build();
-        #echo json_encode($this->query);exit;
-        $stm = DB::connect()->prepare($this->query);
-        if (DB::execute($stm, $this->parameters)) {
-            return $stm;
+        $PDOStatement = DB::connect()->prepare($this->query);
+        $this->bind($PDOStatement);
+
+        if (DB::execute($PDOStatement)) {
+            return $PDOStatement;
         }
         return null;
     }
 
-    /**
-     * @return void
-     */
-    abstract public function build(): void;
+    public function build(): void
+    {
+        $conditions = [];
+        foreach ($this->conditions as $condition) {
+            $conditions[] = $condition->getQueryString();
+        }
+        $this->query .= ' WHERE ' . implode(LogicalOperator::SIGNS[LogicalOperator::OPERATOR_AND], $conditions);
+    }
+
+    public function bind(PDOStatement $PDOStatement): void
+    {
+        foreach ($this->conditions as $condition) {
+            $condition->bindToStatement($PDOStatement);
+        }
+    }
 
 }

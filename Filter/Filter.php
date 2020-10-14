@@ -4,15 +4,14 @@
 namespace Filter;
 require_once BXNMKO . '/Database/DB.php';
 require_once BXNMKO . '/Filter/Field.php';
-require_once BXNMKO . '/Filter/FilterQuery.php';
+require_once BXNMKO . '/Filter/Condition.php';
 
-use PDOStatement;
+use PDO;
 use Database\DB;
-use Filter\Field;
-use Filter\FilterQuery;
+use PDOStatement;
 
 
-class Filter
+class Filter implements Condition
 {
     /**
      * @var int
@@ -29,6 +28,8 @@ class Filter
      */
     public $fields = [];
 
+    public $logicalOperatorId = LogicalOperator::OPERATOR_AND;
+
     /**
      * @return Filter[]
      */
@@ -40,9 +41,34 @@ class Filter
 SQL;
         $stm = DB::connect()->prepare($query);
         if (DB::execute($stm)) {
-            return $stm->fetchAll(\PDO::FETCH_CLASS, self::class);
+            return $stm->fetchAll(PDO::FETCH_CLASS, self::class);
         }
         return [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryString(): string
+    {
+        $filterConditions = [];
+        foreach ($this->fields as $field) {
+            $filterConditions[] = $field->getQueryString();
+        }
+        if ($filterConditions) {
+            return implode(' ' . LogicalOperator::SIGNS[$this->logicalOperatorId] . ' ', $filterConditions);
+        }
+        return '';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function bindToStatement(PDOStatement $PDOStatement): void
+    {
+        foreach ($this->fields as $field) {
+            $field->bindToStatement($PDOStatement);
+        }
     }
 
     /**
@@ -58,22 +84,10 @@ SQL;
         if (!$field = Field::forId($fieldId)) {
             return;
         }
-        if (!$field->comparisonOperator = ComparisonOperator::forId($operatorId)) {
-            return;
-        }
+        $field->comparisonOperatorId = $operatorId;
 
         $field->setValues($values);
         $this->fields[] = $field;
-    }
-
-    /**
-     * @return PDOStatement|null
-     */
-    public function run(): ?PDOStatement
-    {
-        $query = new FilterQuery();
-        $query->addConditionsForFilter($this);
-        return $query->run();
     }
 
 }

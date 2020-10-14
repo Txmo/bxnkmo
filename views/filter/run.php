@@ -4,6 +4,7 @@ require_once BXNMKO . '/Filter/Field.php';
 
 use Filter\Filter;
 use Filter\Field;
+use Filter\Query;
 
 $filter = new Filter();
 
@@ -27,7 +28,10 @@ $amountOperator = (int)$_POST['amountOperator'] ?? 0;
 $amounts = $_POST['amount'] ?? null;
 $filter->addField(Field::AMOUNT, $amountOperator, $amounts);
 
-if ($stm = $filter->run()) {
+$query = new Query();
+$query->addCondition($filter);
+
+if ($stm = $query->run()) {
     echo json_encode($stm->fetchAll(PDO::FETCH_ASSOC));
     exit;
 }

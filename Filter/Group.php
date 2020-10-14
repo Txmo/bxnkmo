@@ -5,12 +5,14 @@ namespace Filter;
 
 require_once BXNMKO . '/Database/DB.php';
 require_once BXNMKO . '/Filter/Filter.php';
+require_once BXNMKO . '/Filter/Condition.php';
 
 use Database\DB;
 use PDO;
+use PDOStatement;
 
 
-class Group
+class Group implements Condition
 {
     /**
      * @var int
@@ -27,6 +29,8 @@ class Group
      */
     public $filter;
 
+    public $logicalOperatorId = LogicalOperator::OPERATOR_AND;
+
     /**
      * @return Group[]
      */
@@ -41,6 +45,45 @@ SQL;
             return $stm->fetchAll(PDO::FETCH_CLASS, self::class);
         }
         return [];
+    }
+
+    /**
+     * @param int $groupId
+     * @return bool
+     */
+    public static function deleteForId(int $groupId): bool
+    {
+        $query = <<<SQL
+        DELETE FROM `group` WHERE id = :id
+SQL;
+        $stm = DB::connect()->prepare($query);
+        $stm->bindValue(':id', $groupId, PDO::PARAM_INT);
+        if (DB::execute($stm)) {
+            return (bool)$stm->rowCount();
+        }
+        return false;
+    }
+
+    public function getQueryString(): string
+    {
+        $groupConditions = [];
+        foreach ($this->filter as $filter) {
+            $groupConditions[] = '(' . $filter->getQueryString() . ')';
+        }
+        if ($groupConditions) {
+            return implode(' ' . LogicalOperator::SIGNS[$this->logicalOperatorId] . ' ', $groupConditions);
+        }
+        return '';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function bindToStatement(PDOStatement $PDOStatement): void
+    {
+        foreach ($this->filter as $filter) {
+            $filter->bindToStatement($PDOStatement);
+        }
     }
 
     /**
@@ -66,23 +109,6 @@ SQL;
     public function isValid(): bool
     {
         return !empty($this->name) && strlen($this->name) <= 50;
-    }
-
-    /**
-     * @param int $groupId
-     * @return bool
-     */
-    public static function deleteForId(int $groupId): bool
-    {
-        $query = <<<SQL
-        DELETE FROM `group` WHERE id = :id
-SQL;
-        $stm = DB::connect()->prepare($query);
-        $stm->bindValue(':id', $groupId, PDO::PARAM_INT);
-        if (DB::execute($stm)) {
-            return (bool)$stm->rowCount();
-        }
-        return false;
     }
 
 }

@@ -81,7 +81,7 @@ SQL;
         $query = <<<SQL
             SELECT id, sign
             FROM comparison_operator c_op
-            JOIN field_comparison_operator fco on c_op.id = fco.comparison_operator_id AND fco.field_id = :fieldId
+            JOIN field_comparison_operator fco on c_op.id = fco.comparisonOperatorId AND fco.fieldId = :fieldId
 SQL;
         $stm = DB::connect()->prepare($query);
         $stm->bindValue(':fieldId', $fieldId, PDO::PARAM_INT);
